@@ -28,7 +28,10 @@ library(kableExtra)
 
 
 ## Metadata
-We will use a DRS spectra data set for demonstration. The data set is from spinach leaves sprayed with two agrochemicals "BF" and "M72" and a control sample named "CS". the data was collected using an ocean optics USB 2000 portable spectrometer at the Laser and spectroscopy lab, department of physics, University of Nairobi in 2019 at room temperature. The frequency scale runs from 349.9 nm to 1000.6 (nm).
+We will use a DRS spectra data set for demonstration and practise. The data set is from spinach leaves sprayed with two agrochemicals "BF" and "M72" and a control sample named "CS". the data was collected using an ocean optics USB 2000 portable spectrometer at the Laser and spectroscopy lab, department of physics, University of Nairobi in 2019 at room temperature. The frequency scale runs from 349.9 nm to 1000.6 (nm).
+The data is available on my git-hub page for easy access [here](<https://github.com/ndungundegwa/DRS-demo-data>). if you don't know how to use git, just press the "clone or download" button and a zipped file will be downloaded. Extract the contents and you are good to go.
+
+please pay attention to how the ".csv" data is formatted because your data should be in the same form for easy use with R.
 
 
 ## Reading a matrix data file stored in the working directory
