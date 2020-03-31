@@ -1,0 +1,169 @@
+---
+title: "PCA with chemospec demo"
+author: "Ndung'u Ndegwa Charles"
+date: "3/31/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Package installation
+
+You need to make sure that you have all the neccesary packages already installed before proceding. i demonstrated how to install missing packages in the session we had so we will not repeat the process here. 
+
+## Loading the packages we will use
+
+```{r packages, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(ChemoSpecUtils)
+library(ChemoSpec)
+library(chemometrics)
+library(knitr)
+library(R.utils)
+library(utils)
+library(kableExtra) 
+
+```
+
+
+## Metadata
+We will use a DRS spectra data set for demonstration. The data set is from spinach leaves sprayed with two agrochemicals "BF" and "M72" and a control sample named "CS". the data was collected using an ocean optics USB 2000 portable spectrometer at the Laser and spectroscopy lab, department of physics, University of Nairobi in 2019 at room temperature. The frequency scale runs from 349.9 nm to 1000.6 (nm).
+
+
+## Reading a matrix data file stored in the working directory
+
+Ensure first that you have set the working directory where your data is located, idealy on your desktop in a folder for easier access.
+```{r reading data, warning=FALSE, paged.print=FALSE}
+rawspec <- matrix2SpectraObject(gr.crit = c("cs", "bf","m72"),
+                                gr.cols = c("green","red","blue"),
+                                freq.unit = "Wavelength (nm)",
+                                int.unit = "Reflectance (%)",
+                                descrip = "ACR Study",
+                                in.file = "ACR_DRS_spectra.csv",
+                                out.file = "ACR_data",
+                                chk = TRUE, 
+                                sep = ",", 
+                                dec = ".")
+```
+
+
+As it can be seen clearly, the data has 567 spectra and 3 groups from the group criteria, "CS","BF" and "M72"
+
+## Summary of the data
+We can look at our data summary using the "sumSpectra" function available in chemospec
+```{r}
+sumSpectra(rawspec)
+```
+
+##  Plotting all the spectra
+
+we can visualize the spectra using the "plotSpectra" function and colour them according to the colour criteria that we  had specified.
+```{r}
+plotSpectra(rawspec,
+            main = "Reflectance Spectra",
+            which = c(1:436),
+            yrange = c(0,60),
+            xlim =c(415,800),
+            offset = .01,
+            showGrid = FALSE,
+            lab.pos = 4000,
+            leg.loc = list(x = 750, y = 30))
+```
+
+
+We can choose to plot one spectrum from each
+category.
+```{r}
+plotSpectra(rawspec,
+            main = "Reflectance Spectra",
+            which = c(7,210,450),
+            yrange = c(0,70),
+            xlim =c(415,800),
+            offset = 12,
+            lab.pos = 600)
+```
+
+## Wavelength selection
+
+We can specify the frequencies  range we desire using the "removeFreq" function. In this example, i am selecting the wavelengths between 680 nm to 800 nm region for further analysis
+
+```{r}
+newspec <- removeFreq(rawspec, rem.freq = rawspec$freq > 800| rawspec$freq < 680)
+```
+## Pre-processing spectra
+
+In this example,we will only do normalization of data using the "normSpectra" function.
+```{r}
+spec3<-normSpectra(newspec)
+```
+## PCA analysis
+Now our data is ready for PCA analysis,You have two main
+options, either classical methods, or robust methods. Clas-
+sical methods use all the data you provide to compute the
+scores and loadings. Robust methods focus on the core or
+heart of the data, which means that some samples may be
+downweighted. This difference is important, and the results
+from the two methods may be quite different, depending
+upon your the nature of your data. The differences arise
+because PCA methods (both classical and robust) attempt
+to find the components that explain as much of the variance
+in the data set as possible. If you have a sample that is
+genuinely corrupted, for instance due to sample handling,
+its spectral profile may be very different from all other sam-
+ples, and it can legitimately be called an outlier. In classical PCA, this one sample will contribute strongly to the variance
+of the entire data set, and the PCA scores will reflect that
+(it is sometimes said that scores and loadings follow the
+outliers). With robust PCA, samples with rather different
+characteristics do not have as great an influence, because
+robust measures of variance, such as the median absolute
+deviation, are used.
+
+More information can be found on the PDF files i had shared with you "An Introduction to ChemoSpec" .
+```{r}
+pca<-c_pcaSpectra(spec3, choice = "noscale", cent = TRUE)
+```
+
+## Score plots
+
+This can be a 2D or 3D plot showing how clustered our data is
+```{r}
+plotScores(spec3, pca, 
+             main ="DRS spectra pca", pcs = c(1,2), ellipse = "cls", tol = 0.05)
+abline(v=0,h=0)
+```
+
+## loadings plot
+
+Loadings plot tells how each variable (frequencies in spectral
+applications) affect the scores. Examining these loadings
+can be critical to interpreting your results(Scores Plot).
+```{r}
+plotLoadings(spec3, pca, loads = c(1,2))
+```
+
+## potential outliers
+
+The function "pcaDiag" can produce two types of plots shown below that can be helpful in detecting outliers
+```{r}
+diagnostics<-pcaDiag(spec3, 
+                     pca, 
+                     pcs = 2, 
+                     #quantile = 0,95,
+                     plot = c("OD","SD"))
+```
+
+## Scree Plots
+This plot determine the number of PCs needed
+to describe the data by showing the cumulative variance of the PCs
+```{r}
+plotScree(pca,style = "alt",main="Reflectance Spectra")
+```
+
+
+All the functions and terminology used in this presentation, that i did not get the chance to explain in our earlier session are available in details. please make sure to check them and some chemospec vignettes [here](<https://www.rdocumentation.org/packages/ChemoSpec/versions/5.2.12>).
+
+
+
+##                "HAPPY LEARNING"
+
